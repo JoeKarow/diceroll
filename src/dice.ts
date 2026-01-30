@@ -1,3 +1,5 @@
+import { AsciiTable3 } from 'ascii-table3';
+
 export interface DiceResult {
   rolls: number[];
   modifier: number;
@@ -63,13 +65,45 @@ export function rollDice(parsed: ParsedDice): DiceResult {
  * Format the dice result for display
  */
 export function formatResult(result: DiceResult): string {
-  const rollsStr = `[${result.rolls.join(", ")}]`;
+  // Prepare rolls display - append modifier in parentheses with sign
+  let rollsContent = result.rolls.join(' ');
+  if (result.modifier !== 0) {
+    const modSign = result.modifier > 0 ? '+' : '';
+    rollsContent += ` (${modSign}${result.modifier})`;
+  }
+  const sumContent = `[${result.total}]`;
 
-  if (result.modifier === 0) {
-    return `Rolling ${result.notation}: ${rollsStr} = **${result.total}**`;
+  // Determine success tier
+  let successTier: string;
+  if (result.total <= 6) {
+    successTier = 'FAILED';
+  } else if (result.total <= 9) {
+    successTier = 'MIXED SUCCESS';
+  } else {
+    successTier = 'FULL SUCCESS';
   }
 
-  const modifierStr =
-    result.modifier > 0 ? `+ ${result.modifier}` : `- ${Math.abs(result.modifier)}`;
-  return `Rolling ${result.notation}: ${rollsStr} ${modifierStr} = **${result.total}**`;
+  const table = new AsciiTable3(result.notation)
+    .setStyle('unicode-single')
+    .setHeading('rolls', 'sum')
+    .addRow(rollsContent, sumContent);
+
+  // Get table output and manually add spanning success tier row
+  let tableStr = table.toString();
+  // Remove the last line (bottom border)
+  const lines = tableStr.trimEnd().split('\n');
+  const bottomBorder = lines.pop()!;
+  // Calculate inner width (width between the outer borders)
+  const innerWidth = bottomBorder.length - 2;
+  // Build the spanning row
+  const paddedTier = successTier.padStart(Math.floor((innerWidth + successTier.length) / 2)).padEnd(innerWidth);
+  const tierRow = `│${paddedTier}│`;
+  // Build new bottom border (no middle junction)
+  const newBottom = `└${'─'.repeat(innerWidth)}┘`;
+  // Add separator, tier row, and new bottom
+  const separator = `├${'─'.repeat(innerWidth)}┤`;
+
+  tableStr = lines.join('\n') + '\n' + separator + '\n' + tierRow + '\n' + newBottom;
+
+  return '```\n' + tableStr + '\n```';
 }
