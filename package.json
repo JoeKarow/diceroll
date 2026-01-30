@@ -9,6 +9,7 @@
     "register": "tsx src/register.ts"
   },
   "dependencies": {
+    "ascii-table3": "^1.0.1",
     "discord-interactions": "^4.1.0"
   },
   "devDependencies": {

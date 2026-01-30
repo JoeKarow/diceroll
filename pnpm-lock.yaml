@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      ascii-table3:
+        specifier: ^1.0.1
+        version: 1.0.1
       discord-interactions:
         specifier: ^4.1.0
         version: 4.4.0
@@ -555,6 +558,10 @@ packages:
   '@speed-highlight/core@1.2.14':
     resolution: {integrity: sha512-G4ewlBNhUtlLvrJTb88d2mdy2KRijzs4UhnlrOSRT4bmjh/IqNElZa3zkrZ+TC47TwtlDWzVLFADljF1Ijp5hA==}
 
+  ascii-table3@1.0.1:
+    resolution: {integrity: sha512-xOCMZC8S375W4JajrAxFWPyI1VddfbscW9G5zMfhCySSt2Rvi/rs21jAjopzldTPOaFrOocjyGKibQiGExmLrg==}
+    engines: {node: '>=11.14.0'}
+
   blake3-wasm@2.1.5:
     resolution: {integrity: sha512-F1+K8EbfOZE49dtoPtmxUQrpXaBIl3ICvasLh+nJta0xkz+9kF/7uet9fLnwKqhDrmj6g+6K3Tw9yQPUg2ka5g==}
 
@@ -605,6 +612,9 @@ packages:
 
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
+
+  printable-characters@1.0.42:
+    resolution: {integrity: sha512-dKp+C4iXWK4vVYZmYSd0KBH5F/h1HoZRsbJ82AVKRO3PEo8L4lBS/vLwhVtpwwuYcoIsVY+1JYKR268yn480uQ==}
 
   resolve-pkg-maps@1.0.0:
     resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
@@ -988,6 +998,10 @@ snapshots:
 
   '@speed-highlight/core@1.2.14': {}
 
+  ascii-table3@1.0.1:
+    dependencies:
+      printable-characters: 1.0.42
+
   blake3-wasm@2.1.5: {}
 
   cookie@1.1.1: {}
@@ -1080,6 +1094,8 @@ snapshots:
   path-to-regexp@6.3.0: {}
 
   pathe@2.0.3: {}
+
+  printable-characters@1.0.42: {}
 
   resolve-pkg-maps@1.0.0: {}
 
