@@ -64,7 +64,7 @@ export function rollDice(parsed: ParsedDice): DiceResult {
 /**
  * Format the dice result for display
  */
-export function formatResult(result: DiceResult): string {
+export function formatResult(result: DiceResult, successTier: string): string {
   // Prepare rolls display - append modifier in parentheses with sign
   let rollsContent = result.rolls.join(' ');
   if (result.modifier !== 0) {
@@ -72,16 +72,6 @@ export function formatResult(result: DiceResult): string {
     rollsContent += ` (${modSign}${result.modifier})`;
   }
   const sumContent = `[${result.total}]`;
-
-  // Determine success tier
-  let successTier: string;
-  if (result.total <= 6) {
-    successTier = 'FAILED';
-  } else if (result.total <= 9) {
-    successTier = 'MIXED SUCCESS';
-  } else {
-    successTier = 'FULL SUCCESS';
-  }
 
   const table = new AsciiTable3(result.notation)
     .setStyle('unicode-single')

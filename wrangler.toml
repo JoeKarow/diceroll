@@ -1,6 +1,12 @@
 name = "diceroll"
 main = "src/index.ts"
 compatibility_date = "2024-12-30"
+
+[[kv_namespaces]]
+binding = "GAME_STATE"
+id = "400ef46bdf82415f8a0076c7e3bedc0b"
+preview_id = "23c2b04062d04bea8a516deeb105b213"
+
 [observability]
 [observability.logs]
 enabled = true

@@ -4,15 +4,23 @@ import {
   verifyKey,
 } from "discord-interactions";
 import { parseDiceNotation, rollDice, formatResult } from "./dice";
+import {
+  DEFAULT_GAME,
+  GAMES,
+  GameId,
+  parseGameId,
+} from "./games";
 
 interface Env {
   DISCORD_APPLICATION_ID: string;
   DISCORD_PUBLIC_KEY: string;
   DISCORD_TOKEN: string;
+  GAME_STATE: KVNamespace;
 }
 
 interface DiscordInteraction {
   type: number;
+  guild_id?: string;
   data?: {
     name: string;
     options?: Array<{
@@ -20,6 +28,23 @@ interface DiscordInteraction {
       value: string;
     }>;
   };
+}
+
+async function getGame(env: Env, guildId: string | undefined): Promise<GameId> {
+  if (!guildId) return DEFAULT_GAME;
+  const stored = await env.GAME_STATE.get(guildId);
+  return stored ? parseGameId(stored) ?? DEFAULT_GAME : DEFAULT_GAME;
+}
+
+async function setGame(env: Env, guildId: string, game: GameId): Promise<void> {
+  await env.GAME_STATE.put(guildId, game);
+}
+
+function reply(content: string): Response {
+  return Response.json({
+    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    data: { content },
+  });
 }
 
 export default {
@@ -58,6 +83,28 @@ export default {
     // Handle APPLICATION_COMMAND (type 2)
     if (interaction.type === InteractionType.APPLICATION_COMMAND) {
       const { name, options } = interaction.data!;
+      const guildId = interaction.guild_id;
+
+      if (name === "game") {
+        const nameOption = options?.find((opt) => opt.name === "name");
+
+        if (!nameOption) {
+          const current = await getGame(env, guildId);
+          return reply(`Current game: **${GAMES[current].displayName}**`);
+        }
+
+        if (!guildId) {
+          return reply("The `/game` command can only be used in a server.");
+        }
+
+        const requested = parseGameId(nameOption.value);
+        if (!requested) {
+          return reply(`Unknown game: \`${nameOption.value}\`.`);
+        }
+
+        await setGame(env, guildId, requested);
+        return reply(`Switched to **${GAMES[requested].displayName}**`);
+      }
 
       if (name === "roll") {
         const diceOption = options?.find((opt) => opt.name === "dice");
@@ -66,31 +113,24 @@ export default {
         const parsed = parseDiceNotation(diceNotation);
 
         if (!parsed) {
-          return Response.json({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              content: `Invalid dice notation: \`${diceNotation}\`. Use format like \`2d6\`, \`1d20+5\`, or \`3d8-2\`.`,
-            },
-          });
+          return reply(
+            `Invalid dice notation: \`${diceNotation}\`. Use format like \`2d6\`, \`1d20+5\`, or \`3d8-2\`.`
+          );
+        }
+
+        const game = GAMES[await getGame(env, guildId)];
+        const validationError = game.validate(parsed);
+        if (validationError) {
+          return reply(validationError);
         }
 
         const result = rollDice(parsed);
-        const message = formatResult(result);
+        const message = formatResult(result, game.tier(result));
 
-        return Response.json({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: message,
-          },
-        });
+        return reply(message);
       }
     }
 
-    return Response.json({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content: "Unknown command",
-      },
-    });
+    return reply("Unknown command");
   },
 };

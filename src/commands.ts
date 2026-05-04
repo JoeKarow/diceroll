@@ -11,4 +11,21 @@ export const ROLL_COMMAND = {
   ],
 };
 
-export const commands = [ROLL_COMMAND];
+export const GAME_COMMAND = {
+  name: "game",
+  description: "Show or switch the active game system for this server",
+  options: [
+    {
+      name: "name",
+      description: "Game to switch to (omit to see current)",
+      type: 3, // STRING type
+      required: false,
+      choices: [
+        { name: "Monster of the Week", value: "motw" },
+        { name: "Tethers", value: "tethers" },
+      ],
+    },
+  ],
+};
+
+export const commands = [ROLL_COMMAND, GAME_COMMAND];
